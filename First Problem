@@ -82,5 +82,5 @@ const jsonInput = `{
     }
 }`;
 
-// Test the solution
+// for print line for the final solution output
 console.log(findConstantTerm(jsonInput));
