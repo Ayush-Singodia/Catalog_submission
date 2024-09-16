@@ -1,0 +1,86 @@
+// Function to parse the JSON input and extract points
+function parseInput(jsonInput) {
+    const data = JSON.parse(jsonInput);
+
+    // Extract the number of points n and the required points k
+    const n = data.keys.n;
+    const k = data.keys.k;
+
+    // Extract points in (x, y) form
+    const points = [];
+    for (let key in data) {
+        if (key === "keys") continue; // Skip the 'keys' part
+
+        const x = parseInt(key); // x value is the key
+        const base = parseInt(data[key].base); // The base of y value
+        const y = parseInt(data[key].value, base); // Decode y using the base
+        points.push({ x, y });
+    }
+
+    return { points, k };
+}
+
+
+function lagrangeInterpolation(points) {
+    // Function to compute the Lagrange basis polynomial for a specific j
+    function basis(j, x) {
+        let result = 1;
+        for (let m = 0; m < points.length; m++) {
+            if (m !== j) {
+                result *= (x - points[m].x) / (points[j].x - points[m].x);
+            }
+        }
+        return result;
+    }
+
+   
+    function interpolate(x) {
+        let sum = 0;
+        for (let j = 0; j < points.length; j++) {
+            sum += points[j].y * basis(j, x);
+        }
+        return sum;
+    }
+
+    // Return the constant term, which is the polynomial evaluated at x = 0
+    return Math.round(interpolate(0)); 
+}
+
+// Main function 
+function findConstantTerm(jsonInput) {
+    // Step 1: Parse the input and get the points and k
+    const parsedData = parseInput(jsonInput);
+    const points = parsedData.points;
+
+    // Step 2: Use Lagrange interpolation to find the constant term
+    const constantTerm = lagrangeInterpolation(points);
+
+    return constantTerm;
+}
+
+// Example input for testing
+const jsonInput = `{
+    "keys": {
+        "n": 4,
+        "k": 3
+    },
+    "1": {
+        "base": "10",
+        "value": "4"
+    },
+    "2": {
+        "base": "2",
+        "value": "111"
+    },
+    "3": {
+        "base": "10",
+        "value": "12"
+    },
+    "6": {
+        "base": "4",
+        "value": "213"
+    }
+}`;
+
+// Test the solution
+console.log(findConstantTerm(jsonInput));
